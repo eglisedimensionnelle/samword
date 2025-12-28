@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+-<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SamEditeur Pro | Édition de Documents Professionnelle</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Écran de chargement professionnel -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-container">
+            <div class="logo-pro">
+                <div class="logo-icon">
+                    <img src="assets/logo.png" alt="SamWord Pro" class="custom-logo" onerror="this.style.display='none'; document.querySelector('.logo-fallback').style.display='flex';">
+                    <div class="logo-fallback" style="display: none;">
+                        <i class="fas fa-file-word"></i>
+                    </div>
+                </div>
+                <h1 class="logo-text">SamEditeur<span class="logo-pro-badge">Pro</span></h1>
+            </div>
+            <div class="loading-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <p class="loading-status">Chargement des modules avancés...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interface principale -->
+    <div id="main-interface" class="main-interface hidden">
+        <!-- Header professionnel -->
+        <header class="header-pro">
+            <div class="header-left">
+                <div class="brand">
+                    <div class="brand-logo">
+                        <img src="assets/logo-icon.png" alt="SamEditeur" class="brand-logo-img" onerror="this.style.display='none'; document.querySelector('.brand-logo-fallback').style.display='flex';">
+                        <div class="brand-logo-fallback" style="display: none;">
+                            <i class="fas fa-file-word"></i>
+                        </div>
+                    </div>
+                    <div class="brand-text">
+                        <span class="brand-name">SamEditeur</span>
+                        <span class="brand-version">Pro</span>
+                    </div>
+                </div>
+                
+                <!-- Menu Principal -->
+                <nav class="main-nav">
+                    <!-- Menu Fichier -->
+                    <div class="nav-group">
+                        <button class="nav-btn" onclick="toggleDropdown('file-menu')">
+                            <i class="fas fa-file"></i>
+                            <span>Fichier</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div id="file-menu" class="nav-dropdown">
+                            <div class="dropdown-section">
+                                <a href="#" onclick="newDocument()" class="dropdown-item">
+                                    <i class="fas fa-file-medical"></i>
+                                    <div>
+                                        <div class="item-title">Nouveau document</div>
+                                        <div class="item-desc">Créer un nouveau document</div>
+                                    </div>
+                                </a>
+                                <a href="#" onclick="openFile()" class="dropdown-item">
+                                    <i class="fas fa-folder-open"></i>
+                                    <div>
+                                        <div class="item-title">Ouvrir</div>
+                                        <div class="item-desc">Ouvrir un document existant</div>
+                                    </div>
+                                </a>
+                                <a href="#" onclick="showSaveModal()" class="dropdown-item">
+                                    <i class="fas fa-save"></i>
+                                    <div>
+                                        <div class="item-title">Enregistrer sous</div>
+                                        <div class="item-desc">Exporter dans différents formats</div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="dropdown-section">
+                                <div class="section-title">Export Rapide</div>
+                                <a href="#" onclick="quickExport('hsjf')" class="dropdown-item">
+                                    <i class="fas fa-file-word"></i>
+                                    <div>
+                                        <div class="item-title">HSJF</div>
+                                        <div class="item-desc">Document SamEditeur</div>
+                                    </div>
+                                </a>
+                                <a href="#" onclick="quickExport('pdf')" class="dropdown-item">
+                                    <i class="fas fa-file-pdf"></i>
+                                    <div>
+                                        <div class="item-title">PDF</div>
+                                        <div class="item-desc">Format Portable</div>
+                                    </div>
+                                </a>
+                                <a href="#" onclick="quickExport('html')" class="dropdown-item">
+                                    <i class="fas fa-file-code"></i>
+                                    <div>
+                                        <div class="item-title">HTML</div>
+                                        <div class="item-desc">Page Web</div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Menu Édition -->
+                    <div class="nav-group">
+                        <button class="nav-btn" onclick="toggleDropdown('edit-menu')">
+                            <i class="fas fa-edit"></i>
+                            <span>Édition</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div id="edit-menu" class="nav-dropdown">
+                            <div class="dropdown-section">
+                                <a href="#" onclick="execCommand('undo')" class="dropdown-item">
+                                    <i class="fas fa-undo"></i>
+                                    <div>
+                                        <div class="item-title">Annuler</div>
+                                        <div class="item-shortcut">Ctrl+Z</div>
+                                    </div>
+                                </a>
+                                <a href="#" onclick="execCommand('redo')" class="dropdown-item">
+                                    <i class="fas fa-redo"></i>
+                                    <div>
+                                        <div class="item-title">Rétablir</div>
+                                        <div class="item-shortcut">Ctrl+Y</div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="dropdown-section">
+                                <a href="#" onclick="execCommand('cut')" class="dropdown-item">
+                                    <i class="fas fa-cut"></i>
+                                    <div>
+                                        <div class="item-title">Couper</div>
+                                        <div class="item-shortcut">Ctrl+X</div>
+                                    </div>
+                                </a>
+                                <a href="#" onclick="execCommand('copy')" class="dropdown-item">
+                                    <i class="fas fa-copy"></i>
+                                    <div>
+                                        <div class="item-title">Copier</div>
+                                        <div class="item-shortcut">Ctrl+C</div>
+                                    </div>
+                                </a>
+                                <a href="#" onclick="execCommand('paste')" class="dropdown-item">
+                                    <i class="fas fa-paste"></i>
+                                    <div>
+                                        <div class="item-title">Coller</div>
+                                        <div class="item-shortcut">Ctrl+V</div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Menu Insertion -->
+                    <div class="nav-group">
+                        <button class="nav-btn" onclick="toggleDropdown('insert-menu')">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Insertion</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div id="insert-menu" class="nav-dropdown">
+                            <div class="dropdown-section">
+                                <a href="#" onclick="insertImage()" class="dropdown-item">
+                                    <i class="fas fa-image"></i>
+                                    <div>
+                                        <div class="item-title">Image</div>
+                                        <div class="item-desc">Insérer une image</div>
+                                    </div>
+                                </a>
+                                <a href="#" onclick="insertTable()" class="dropdown-item">
+                                    <i class="fas fa-table"></i>
+                                    <div>
+                                        <div class="item-title">Tableau</div>
+                                        <div class="item-desc">Insérer un tableau</div>
+                                    </div>
+                                </a>
+                                <a href="#" onclick="insertShape()" class="dropdown-item">
+                                    <i class="fas fa-shapes"></i>
+                                    <div>
+                                        <div class="item-title">Formes</div>
+                                        <div class="item-desc">Formes géométriques</div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="dropdown-section">
+                                <a href="#" onclick="insertPageBreak()" class="dropdown-item">
+                                    <i class="fas fa-file-alt"></i>
+                                    <div>
+                                        <div class="item-title">Saut de page</div>
+                                    </div>
+                                </a>
+                                <a href="#" onclick="insertCoverPage()" class="dropdown-item">
+                                    <i class="fas fa-flag"></i>
+                                    <div>
+                                        <div class="item-title">Page de garde</div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Menu Musique -->
+                    <div class="nav-group">
+                        <button class="nav-btn" onclick="showMusicManager()">
+                            <i class="fas fa-music"></i>
+                            <span>Musique</span>
+                        </button>
+                    </div>
+                </nav>
+            </div>
+
+            <div class="header-right">
+                <!-- Recherche -->
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Rechercher dans le document..." id="search-input">
+                </div>
+
+                <!-- Contrôles -->
+                <div class="header-controls">
+                    <button class="control-btn" onclick="textToSpeech()" title="Lecture vocale IA">
+                        <i class="fas fa-robot"></i>
+                    </button>
+                    <button id="music-control-btn" class="control-btn" onclick="toggleMusic()" title="Contrôles musique">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button id="theme-btn" class="control-btn" onclick="toggleTheme()" title="Changer le thème">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Barre d'outils de formatage -->
+        <div class="formatting-bar">
+            <!-- Groupe Polices -->
+            <div class="toolbar-group">
+                <select id="font-family" class="toolbar-select" onchange="changeFontFamily(this.value)">
+                    <option value="Inter">Inter</option>
+                    <option value="Arial">Arial</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Verdana">Verdana</option>
+                    <option value="Courier New">Courier New</option>
+                </select>
+                
+                <select id="font-size" class="toolbar-select" onchange="changeFontSize(this.value)">
+                    <option value="8">8</option>
+                    <option value="10">10</option>
+                    <option value="12" selected>12</option>
+                    <option value="14">14</option>
+                    <option value="16">16</option>
+                    <option value="18">18</option>
+                    <option value="24">24</option>
+                    <option value="32">32</option>
+                </select>
+
+                <div class="toolbar-divider"></div>
+
+                <button class="toolbar-btn" onclick="changeFontSize('increase')" title="Augmenter la taille">
+                    <i class="fas fa-search-plus"></i>
+                </button>
+                <button class="toolbar-btn" onclick="changeFontSize('decrease')" title="Réduire la taille">
+                    <i class="fas fa-search-minus"></i>
+                </button>
+
+                <button class="toolbar-btn" onclick="clearFormatting()" title="Effacer la mise en forme">
+                    <i class="fas fa-eraser"></i>
+                </button>
+            </div>
+
+            <!-- Groupe Style -->
+            <div class="toolbar-group">
+                <button class="toolbar-btn" onclick="execCommand('bold')" title="Gras (Ctrl+B)">
+                    <i class="fas fa-bold"></i>
+                </button>
+                <button class="toolbar-btn" onclick="execCommand('italic')" title="Italique (Ctrl+I)">
+                    <i class="fas fa-italic"></i>
+                </button>
+                <button class="toolbar-btn" onclick="execCommand('underline')" title="Souligné (Ctrl+U)">
+                    <i class="fas fa-underline"></i>
+                </button>
+                <button class="toolbar-btn" onclick="execCommand('strikeThrough')" title="Barré">
+                    <i class="fas fa-strikethrough"></i>
+                </button>
+
+                <div class="toolbar-divider"></div>
+
+                <button class="toolbar-btn" onclick="changeTextColor()" title="Couleur du texte">
+                    <i class="fas fa-palette"></i>
+                </button>
+                <button class="toolbar-btn" onclick="changeHighlightColor()" title="Surligneur">
+                    <i class="fas fa-highlighter"></i>
+                </button>
+
+                <button class="toolbar-btn" onclick="execCommand('subscript')" title="Indice">
+                    <i class="fas fa-subscript"></i>
+                </button>
+                <button class="toolbar-btn" onclick="execCommand('superscript')" title="Exposant">
+                    <i class="fas fa-superscript"></i>
+                </button>
+            </div>
+
+            <!-- Groupe Paragraphe -->
+            <div class="toolbar-group">
+                <button class="toolbar-btn" onclick="execCommand('justifyLeft')" title="Aligner à gauche">
+                    <i class="fas fa-align-left"></i>
+                </button>
+                <button class="toolbar-btn" onclick="execCommand('justifyCenter')" title="Centrer">
+                    <i class="fas fa-align-center"></i>
+                </button>
+                <button class="toolbar-btn" onclick="execCommand('justifyRight')" title="Aligner à droite">
+                    <i class="fas fa-align-right"></i>
+                </button>
+                <button class="toolbar-btn" onclick="execCommand('justifyFull')" title="Justifier">
+                    <i class="fas fa-align-justify"></i>
+                </button>
+
+                <div class="toolbar-divider"></div>
+
+                <button class="toolbar-btn" onclick="execCommand('insertUnorderedList')" title="Liste à puces">
+                    <i class="fas fa-list-ul"></i>
+                </button>
+                <button class="toolbar-btn" onclick="execCommand('insertOrderedList')" title="Liste numérotée">
+                    <i class="fas fa-list-ol"></i>
+                </button>
+
+                <button class="toolbar-btn" onclick="decreaseIndent()" title="Diminuer le retrait">
+                    <i class="fas fa-outdent"></i>
+                </button>
+                <button class="toolbar-btn" onclick="increaseIndent()" title="Augmenter le retrait">
+                    <i class="fas fa-indent"></i>
+                </button>
+            </div>
+
+            <!-- Groupe Modes -->
+            <div class="toolbar-group">
+                <button id="simple-mode-btn" class="mode-btn active" onclick="switchMode('simple')">
+                    <i class="fas fa-file-alt"></i>
+                    Mode Standard
+                </button>
+                <button id="duo-mode-btn" class="mode-btn" onclick="switchMode('duo')">
+                    <i class="fas fa-columns"></i>
+                    Mode Duo
+                </button>
+            </div>
+
+            <!-- Groupe Export Rapide -->
+            <div class="toolbar-group">
+                <button class="export-quick-btn" onclick="showSaveModal()" title="Exporter le document">
+                    <i class="fas fa-download"></i>
+                    Exporter
+                </button>
+            </div>
+        </div>
+
+        <!-- Zone d'édition principale -->
+        <main class="editor-main">
+            <!-- Panneau latéral des styles -->
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Styles rapides</h3>
+                    <div class="style-list">
+                        <button class="style-btn" onclick="applyStyle('title')">
+                            <div class="style-preview title-preview">T</div>
+                            Titre principal
+                        </button>
+                        <button class="style-btn" onclick="applyStyle('heading1')">
+                            <div class="style-preview heading1-preview">H1</div>
+                            Titre 1
+                        </button>
+                        <button class="style-btn" onclick="applyStyle('heading2')">
+                            <div class="style-preview heading2-preview">H2</div>
+                            Titre 2
+                        </button>
+                        <button class="style-btn" onclick="applyStyle('quote')">
+                            <div class="style-preview quote-preview">"</div>
+                            Citation
+                        </button>
+                        <button class="style-btn" onclick="applyStyle('code')">
+                            <div class="style-preview code-preview">{ }</div>
+                            Code
+                        </button>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Insertion rapide</h3>
+                    <div class="quick-insert">
+                        <button class="quick-btn" onclick="insertImage()">
+                            <i class="fas fa-image"></i>
+                            Image
+                        </button>
+                        <button class="quick-btn" onclick="insertTable()">
+                            <i class="fas fa-table"></i>
+                            Tableau
+                        </button>
+                        <button class="quick-btn" onclick="insertHorizontalLine()">
+                            <i class="fas fa-minus"></i>
+                            Ligne
+                        </button>
+                        <button class="quick-btn" onclick="insertDate()">
+                            <i class="fas fa-calendar"></i>
+                            Date
+                        </button>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Document</h3>
+                    <div class="document-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-font"></i>
+                            <span id="sidebar-word-count">0 mots</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-text-width"></i>
+                            <span id="sidebar-char-count">0 caractères</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-clock"></i>
+                            <span id="reading-time">0 min</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mini lecteur musique -->
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Musique</h3>
+                    <div class="mini-player">
+                        <div class="now-playing">
+                            <div class="track-info">
+                                <div class="track-title" id="current-track">Aucune piste</div>
+                                <div class="track-artist" id="current-artist">SamEditeur Pro</div>
+                            </div>
+                        </div>
+                        <div class="player-controls">
+                            <button class="player-btn" onclick="previousTrack()" title="Précédent">
+                                <i class="fas fa-step-backward"></i>
+                            </button>
+                            <button class="player-btn play-pause" onclick="toggleMusic()" title="Play/Pause">
+                                <i class="fas fa-play" id="play-pause-icon"></i>
+                            </button>
+                            <button class="player-btn" onclick="nextTrack()" title="Suivant">
+                                <i class="fas fa-step-forward"></i>
+                            </button>
+                        </div>
+                        <div class="volume-control">
+                            <i class="fas fa-volume-down"></i>
+                            <input type="range" id="volume-slider" min="0" max="100" value="50" oninput="changeVolume(this.value)">
+                            <i class="fas fa-volume-up"></i>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Zone d'édition -->
+            <div class="editor-container">
+                <!-- Mode Standard -->
+                <div id="simple-mode" class="editor-mode active">
+                    <div class="document-wrapper">
+                        <div class="document-page">
+                            <div id="editor" class="editor" contenteditable="true">
+                                <h1 style="text-align: center; color: #2563eb; margin-bottom: 30px; font-weight: 700;">Bienvenue sur SamEditeur Pro</h1>
+                                <p style="text-align: center; color: #64748b; margin-bottom: 50px; font-size: 1.1em;">
+                                    Votre éditeur de documents professionnel avec support multi-formats et mode duo.
+                                </p>
+                                
+                                <div style="background: #f8fafc; padding: 30px; border-radius: 12px; margin: 40px 0;">
+                                    <h3 style="color: #0f172a; margin-bottom: 20px;">🚀 Fonctionnalités Avancées :</h3>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; color: #475569;">
+                                        <div><strong>Mode Duo</strong> - Double écran</div>
+                                        <div><strong>Formats Personnalisés</strong> - HSJF, KLPX, etc.</div>
+                                        <div><strong>Gestionnaire Musique</strong> - Playlist personnalisée</div>
+                                        <div><strong>IA Intégrée</strong> - Synthèse vocale</div>
+                                        <div><strong>Export Multiple</strong> - 12+ formats</div>
+                                        <div><strong>Interface Pro</strong> - Thèmes clair/sombre</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mode Duo -->
+                <div id="duo-mode" class="editor-mode">
+                    <div class="duo-container">
+                        <div class="duo-panel">
+                            <div class="panel-header">
+                                <span class="panel-title">Éditeur Principal</span>
+                                <div class="panel-actions">
+                                    <button class="panel-btn" onclick="clearPanel('left')" title="Vider l'éditeur">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    <button class="panel-btn" onclick="exportPanel('left')" title="Exporter ce panneau">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="editor-left" class="editor" contenteditable="true">
+                                <h3>Zone d'édition principale</h3>
+                                <p>Utilisez cette zone pour votre contenu principal.</p>
+                                <p>Idéal pour la rédaction de documents importants, rapports, mémoires.</p>
+                                <ul>
+                                    <li>Édition complète avec tous les outils</li>
+                                    <li>Formatage avancé disponible</li>
+                                    <li>Export individuel ou combiné</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="panel-divider">
+                            <button class="divider-btn" onclick="swapPanels()" title="Échanger le contenu">
+                                <i class="fas fa-exchange-alt"></i>
+                            </button>
+                            <button class="divider-btn" onclick="syncPanels()" title="Synchroniser les panneaux">
+                                <i class="fas fa-sync"></i>
+                            </button>
+                            <button class="divider-btn" onclick="mergePanels()" title="Fusionner les panneaux">
+                                <i class="fas fa-merge"></i>
+                            </button>
+                        </div>
+
+                        <div class="duo-panel">
+                            <div class="panel-header">
+                                <span class="panel-title">Éditeur Secondaire</span>
+                                <div class="panel-actions">
+                                    <button class="panel-btn" onclick="clearPanel('right')" title="Vider l'éditeur">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    <button class="panel-btn" onclick="exportPanel('right')" title="Exporter ce panneau">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="editor-right" class="editor" contenteditable="true">
+                                <h3>Zone secondaire</h3>
+                                <p>Parfait pour les notes, références ou brouillons.</p>
+                                <p>Vous pouvez travailler sur deux documents simultanément.</p>
+                                <ul>
+                                    <li>Notes de recherche</li>
+                                    <li>Références bibliographiques</li>
+                                    <li>Brouillons et idées</li>
+                                    <li>Contenu complémentaire</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Barre de statut professionnelle -->
+        <footer class="status-bar-pro">
+            <div class="status-left">
+                <div class="status-item">
+                    <i class="fas fa-font"></i>
+                    <span id="word-count">0 mots</span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-text-width"></i>
+                    <span id="char-count">0 caractères</span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-file"></i>
+                    <span id="page-info">Document</span>
+                </div>
+                <div class="status-item" id="music-status">
+                    <i class="fas fa-music"></i>
+                    <span id="current-music">Musique arrêtée</span>
+                </div>
+            </div>
+
+            <div class="status-center">
+                <div class="ai-status" id="ai-status">
+                    <i class="fas fa-robot"></i>
+                    <span>Prêt</span>
+                </div>
+            </div>
+
+            <div class="status-right">
+                <div class="zoom-controls">
+                    <button class="zoom-btn" onclick="zoomOut()" title="Zoom arrière">
+                        <i class="fas fa-search-minus"></i>
+                    </button>
+                    <select class="zoom-select" onchange="setZoom(this.value)">
+                        <option value="50">50%</option>
+                        <option value="75">75%</option>
+                        <option value="100" selected>100%</option>
+                        <option value="125">125%</option>
+                        <option value="150">150%</option>
+                        <option value="200">200%</option>
+                    </select>
+                    <button class="zoom-btn" onclick="zoomIn()" title="Zoom avant">
+                        <i class="fas fa-search-plus"></i>
+                    </button>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Lecteur audio principal -->
+    <audio id="background-music"></audio>
+
+    <!-- Modals professionnels -->
+    <div id="modal-overlay" class="modal-overlay hidden">
+        <!-- Modal Export -->
+        <div id="export-modal" class="modal-pro hidden">
+            <div class="modal-header">
+                <div class="modal-icon">
+                    <i class="fas fa-download"></i>
+                </div>
+                <div class="modal-title">
+                    <h3>Exporter le document</h3>
+                    <p>Choisissez le format d'exportation</p>
+                </div>
+                <button class="modal-close" onclick="closeModal('export-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="format-grid">
+                    <!-- Documents SamEditeur -->
+                    <div class="format-category">
+                        <h4 class="category-title">
+                            <i class="fas fa-file-word"></i>
+                            Formats SamEditeur
+                        </h4>
+                        <div class="format-options">
+                            <div class="format-option" onclick="exportDocument('hsjf')">
+                                <i class="fas fa-file-word"></i>
+                                <div class="format-info">
+                                    <div class="format-name">HSJF</div>
+                                    <div class="format-desc">Document SamEditeur standard</div>
+                                </div>
+                            </div>
+                            <div class="format-option" onclick="exportDocument('klpx')">
+                                <i class="fas fa-file-code"></i>
+                                <div class="format-info">
+                                    <div class="format-name">KLPX</div>
+                                    <div class="format-desc">Document avec macros</div>
+                                </div>
+                            </div>
+                            <div class="format-option" onclick="exportDocument('mntb')">
+                                <i class="fas fa-copy"></i>
+                                <div class="format-info">
+                                    <div class="format-name">MNTB</div>
+                                    <div class="format-desc">Modèle SamEditeur</div>
+                                </div>
+                            </div>
+                            <div class="format-option" onclick="exportDocument('qrzd')">
+                                <i class="fas fa-cogs"></i>
+                                <div class="format-info">
+                                    <div class="format-name">QRZD</div>
+                                    <div class="format-desc">Modèle avec macros</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PDF et Formats Web -->
+                    <div class="format-category">
+                        <h4 class="category-title">
+                            <i class="fas fa-file-pdf"></i>
+                            PDF & Web
+                        </h4>
+                        <div class="format-options">
+                            <div class="format-option" onclick="exportDocument('pdf')">
+                                <i class="fas fa-file-pdf"></i>
+                                <div class="format-info">
+                                    <div class="format-name">PDF</div>
+                                    <div class="format-desc">Format Portable</div>
+                                </div>
+                            </div>
+                            <div class="format-option" onclick="exportDocument('html')">
+                                <i class="fas fa-file-code"></i>
+                                <div class="format-info">
+                                    <div class="format-name">HTML</div>
+                                    <div class="format-desc">Page Web standard</div>
+                                </div>
+                            </div>
+                            <div class="format-option" onclick="exportDocument('wxyz')">
+                                <i class="fas fa-archive"></i>
+                                <div class="format-info">
+                                    <div class="format-name">WXYZ</div>
+                                    <div class="format-desc">Archive Web complète</div>
+                                </div>
+                            </div>
+                            <div class="format-option" onclick="exportDocument('abcd')">
+                                <i class="fas fa-file-archive"></i>
+                                <div class="format-info">
+                                    <div class="format-name">ABCD</div>
+                                    <div class="format-desc">Archive Web MIME</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Autres Formats -->
+                    <div class="format-category">
+                        <h4 class="category-title">
+                            <i class="fas fa-file-alt"></i>
+                            Autres Formats
+                        </h4>
+                        <div class="format-options">
+                            <div class="format-option" onclick="exportDocument('efgh')">
+                                <i class="fas fa-file-text"></i>
+                                <div class="format-info">
+                                    <div class="format-name">EFGH</div>
+                                    <div class="format-desc">Rich Text Format</div>
+                                </div>
+                            </div>
+                            <div class="format-option" onclick="exportDocument('ijkl')">
+                                <i class="fas fa-code"></i>
+                                <div class="format-info">
+                                    <div class="format-name">IJKL</div>
+                                    <div class="format-desc">Données structurées</div>
+                                </div>
+                            </div>
+                            <div class="format-option" onclick="exportDocument('mnop')">
+                                <i class="fas fa-file-contract"></i>
+                                <div class="format-info">
+                                    <div class="format-name">MNOP</div>
+                                    <div class="format-desc">OpenDocument Text</div>
+                                </div>
+                            </div>
+                            <div class="format-option" onclick="exportDocument('txt')">
+                                <i class="fas fa-file-lines"></i>
+                                <div class="format-info">
+                                    <div class="format-name">TXT</div>
+                                    <div class="format-desc">Texte brut</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="export-settings">
+                    <h4>Paramètres d'exportation</h4>
+                    <div class="settings-grid">
+                        <div class="setting-group">
+                            <label for="export-filename">Nom du fichier</label>
+                            <input type="text" id="export-filename" value="document-samediteur" placeholder="Nom du fichier">
+                        </div>
+                        <div class="setting-group">
+                            <label for="document-title">Titre du document</label>
+                            <input type="text" id="document-title" value="Document SamEditeur Pro" placeholder="Titre du document">
+                        </div>
+                    </div>
+                    <div class="setting-group full-width">
+                        <label for="document-author">Auteur</label>
+                        <input type="text" id="document-author" value="Utilisateur SamEditeur" placeholder="Nom de l'auteur">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('export-modal')">Annuler</button>
+                <button class="btn-primary" onclick="startExport()">
+                    <i class="fas fa-download"></i>
+                    Exporter
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal Gestionnaire Musique -->
+        <div id="music-modal" class="modal-pro hidden">
+            <div class="modal-header">
+                <div class="modal-icon">
+                    <i class="fas fa-music"></i>
+                </div>
+                <div class="modal-title">
+                    <h3>Gestionnaire de Musique</h3>
+                    <p>Gérez votre playlist de travail</p>
+                </div>
+                <button class="modal-close" onclick="closeModal('music-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="music-manager">
+                    <div class="upload-section">
+                        <h4>Ajouter de la musique</h4>
+                        <div class="upload-area" id="upload-area">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Glissez-déposez vos fichiers audio ici</p>
+                            <span>ou</span>
+                            <input type="file" id="music-upload" accept="audio/*" multiple style="display: none;">
+                            <button class="btn-secondary" onclick="document.getElementById('music-upload').click()">
+                                <i class="fas fa-folder-open"></i>
+                                Parcourir les fichiers
+                            </button>
+                        </div>
+                        <div class="supported-formats">
+                            <small>Formats supportés: MP3, WAV, OGG, M4A</small>
+                        </div>
+                    </div>
+
+                    <div class="playlist-section">
+                        <h4>Playlist actuelle</h4>
+                        <div class="playlist" id="playlist">
+                            <div class="empty-playlist">
+                                <i class="fas fa-music"></i>
+                                <p>Aucune musique dans la playlist</p>
+                                <small>Ajoutez des fichiers audio pour commencer</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="music-controls">
+                        <div class="control-group">
+                            <label>
+                                <input type="checkbox" id="shuffle-mode" onchange="toggleShuffle()">
+                                Mélanger la lecture
+                            </label>
+                            <label>
+                                <input type="checkbox" id="repeat-mode" onchange="toggleRepeat()">
+                                Répéter la playlist
+                            </label>
+                        </div>
+                        <div class="control-group">
+                            <button class="btn-secondary" onclick="clearPlaylist()">
+                                <i class="fas fa-trash"></i>
+                                Vider la playlist
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('music-modal')">Fermer</button>
+            </div>
+        </div>
+
+        <!-- Modal Progression -->
+        <div id="progress-modal" class="modal-pro hidden">
+            <div class="modal-header">
+                <div class="modal-icon">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+                <div class="modal-title">
+                    <h3>Export en cours</h3>
+                    <p id="progress-message">Préparation du document...</p>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="progress-container">
+                    <div class="progress-bar-export">
+                        <div class="progress-fill-export" id="export-progress"></div>
+                    </div>
+                    <div class="progress-text" id="progress-text">0%</div>
+                </div>
+                <div class="export-details">
+                    <div class="detail-item">
+                        <i class="fas fa-file"></i>
+                        <span id="detail-format">Format: HSJF</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock"></i>
+                        <span id="detail-time">Temps estimé: 5s</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
